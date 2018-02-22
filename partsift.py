@@ -21,14 +21,14 @@ def build_polynomial(r, s, degree = "false"):
 	q = (s-1)/2
 	poly_degree = 0
 
-	#For x-terms
+
 	for j in xrange(2, r+1):
 		for i in xrange(1, j):
 			term = (var("x" + str(j))-var("x" + str(i)))
 			polynomial = polynomial *term
 			poly_degree += 1
 
-	#For y-terms		
+		
 	for j in xrange(2, s+1):
 		for i in xrange(1, j):
 			term = (var("y" + str(j)) - var("y" + str(i)))
@@ -36,14 +36,14 @@ def build_polynomial(r, s, degree = "false"):
 			poly_degree += 1
 
 	
-	#Function to be used for Zp in both Z and t definitions
+
 	def z_adder(input):
 		z_added = 0
 		for i in xrange(1, input+1):
 			z_added = z_added + var("x"+str(i))
 		return z_added 
 	
-	#Function used for finding Z
+
 	def findz(input, p):
 		if input == 0:
 			return 0
@@ -62,7 +62,7 @@ def build_polynomial(r, s, degree = "false"):
 			else:
 				return z_adder(input)
 
-	#Now finding and adding the Z terms
+
 	for j in xrange(1, p+q+1):
 		for i in xrange(0, j):
 			if j!=i+1:
@@ -70,7 +70,7 @@ def build_polynomial(r, s, degree = "false"):
 				polynomial = polynomial * term
 				poly_degree += 1
 
-	#Function like z_adder, but for the first part of T
+
 	def t_adder(input, p):
 		t_added = 0
 		alty = itertools.cycle([0,1]).next
@@ -82,7 +82,7 @@ def build_polynomial(r, s, degree = "false"):
 				t_added = t_added - (var("y" +str(i)))
 		return t_added + z_adder(p)
 
-	#Function for finding T
+
 	def findt(input, p, q):
 		if input > q+1:
 			final = 0
@@ -92,7 +92,7 @@ def build_polynomial(r, s, degree = "false"):
 		else:
 			return t_adder(input, p)
 	
-	#Now to actually find the T terms...
+
 	for j in xrange(2, p+q+2):
 		for i in xrange(1, j):
 			if j != i+1:
