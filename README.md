@@ -25,7 +25,7 @@ This funcion builds a polynomial from inputs r (even number or zero) and s (odd 
 
 *fig 2: form of z terms*
 
-![T Form]polynomial_formulas/t_form.png?raw=true "T Form")
+![T Form](polynomial_formulas/t_form.png?raw=true "T Form")
 
 *fig 3: form of t terms*
 
