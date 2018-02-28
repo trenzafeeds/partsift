@@ -15,19 +15,7 @@ partsift.py requires elements of the following python and sage packages to work:
 ### Explanation of functions:
 
 ##### *build_polynomial(r, s, degree = "false")*
-This funcion builds a polynomial from inputs r (even number or zero) and s (odd number) according to the following form:
-
-![Polynomial Form](polynomial_formulas/pi_form.png?raw=true "Polynomial Form")
-
-*fig 1: form of complete polynomial*
-
-![Z Form](polynomial_formulas/z_form.png?raw=true "Z Form")
-
-*fig 2: form of z terms*
-
-![T Form](polynomial_formulas/t_form.png?raw=true "T Form")
-
-*fig 3: form of t terms*
+This funcion builds a polynomial from inputs r (even number or zero) and s (odd number) according to the form described in [this PDF](https://drive.google.com/file/d/0B4oI_aO3gvmWRnVvMzlRa2JRYk14TGtlODhqb1hqSDVJUUx3/view?usp=sharing).
 
 The function returns either only the polynomial as a Sage symbolic expression (when degree = "false", the default setting), or a list in the following format \[polynomial (as a symbolic expression), degree of the polynomial (as an integer)].
 
