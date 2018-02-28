@@ -20,7 +20,16 @@ This funcion builds a polynomial from inputs r (even number or zero) and s (odd 
 The function returns either only the polynomial as a Sage symbolic expression (when degree = "false", the default setting), or a list in the following format \[polynomial (as a symbolic expression), degree of the polynomial (as an integer)].
 
 ##### *find_monomials(polynomial, degree, r, s, form = "list", sort_type = "zero")*
-This function takes a polynomial built from the form outlined by the previous function, and finds all monomials present in the expanded form of the polynomial that fit the terms described in [monomial_form.md](polynomial_formulas/monomial_form.md). The function has a variety of options for returns, chosen by the `form` and `sort_type` variables. By default, it returns a list of monomials ordered by the distance of their coefficient from zero. Setting `form = "tup"` or `form = "tuple"` will change the output to a list of tuples containing `(monomial*coefficient, coefficient)` and setting `sort_type = "value"` will order the list by the values of coefficients. 
+This function takes a polynomial built from the form outlined by the previous function, and finds all monomials present in the expanded form of the polynomial that fit the following criteria:
+
+ ###### Find Monomials such that:
+- The monomial, when created from the built polynomial, has a non-zero coefficient.
+- The degree of the monomial is the same as the degree of the polynomial.
+- The can divide every possible x term with a degree of `r` and every possible y term with a degree of `s`. 
+In other words, the highest exponent on any x variable in the monomial is `r-1` and the highest exponent on any y variable 
+in the monomial is `s-1`.
+
+The function has a variety of options for returns, chosen by the `form` and `sort_type` variables. By default, it returns a list of monomials ordered by the distance of their coefficient from zero. Setting `form = "tup"` or `form = "tuple"` will change the output to a list of tuples containing `(monomial*coefficient, coefficient)` and setting `sort_type = "value"` will order the list by the values of coefficients. 
 
 ##### *sift(r, s, form = "list", sort_type = "zero")*
 This function executes the main purpose of this module. Quite simply, it combines the previous two functions. Input is r and s as with `build_polynomial`, and the function returns a list of monomials in the same fashion as `find_monomials`. `sift` also takes `form` and `sort_type` arguments in the same manner as `find_monomials`. 
