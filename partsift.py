@@ -1,6 +1,6 @@
 """
 Kat Cannon-MacMartin
-partsift v1.5
+partsift v1.5.1
 A tool for building and polynomials and finding monomials.
 for use in the paper:
 'Sequences in Dihedral Groups with Distinct Partial Products'
@@ -280,7 +280,8 @@ def find_monomials(polynomial, poly_degree, r, s, form = "list", sort_type = "ze
 		for power_set in multiset_permutations(power_values):
 			temp_test_monomial = test_monomial
 			power_set=list(power_set)
-			if max(power_set[0:r])<r and max(power_set[r:r+s])<s:
+			#NOTE: -1's are to fix problem when r or s = 0
+			if max(power_set[0:r], -1)<r and max(power_set[r:r+s], -1)<s:
 				temp_test_monomial = temp_test_monomial.subs({list_of_both_powers[i]:power_set[i] for i in xrange(0, r+s)})
 				if polynomial_expanded.coefficient(temp_test_monomial) not in [0]:
 					workable_monomials.append((polynomial_expanded.coefficient(temp_test_monomial)*temp_test_monomial, int(polynomial_expanded.coefficient(temp_test_monomial))))
