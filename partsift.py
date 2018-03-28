@@ -1,18 +1,107 @@
 """
 Kat Cannon-MacMartin
-partsift v1.5.1
+partsift v1.6.0
 A tool for building and polynomials and finding monomials.
 for use in the paper:
 'Sequences in Dihedral Groups with Distinct Partial Products'
 February 20, 2018
 Marlboro College
 """
+
+from sage.arith.misc import factor
 from sage.calculus.var import var
 from sage.combinat.partition import Partitions
 from sage.calculus.functional import expand
 
 import itertools
 from sympy.utilities.iterables import multiset_permutations
+
+def add_x_vars(j, i):
+	return (var("x" + str(j)) - var("x" + str(i)))
+def add_y_vars(j, i):
+	return (var("y" + str(j)) - var("y" + str(i)))
+
+def z_adder(input):
+	"""Function for use in building z and t variables.
+		Args:
+		    input(int): The number of the z variable
+			        to be shown in terms of x.
+		Returns:
+		    z_added(symb exp): Series of x variables
+				       added together.
+	"""
+	z_added = 0
+	for i in xrange(1, input+1):
+		z_added = z_added + var("x"+str(i))
+	return z_added
+
+def t_adder(input, p):
+	"""Function similar to z_adder(), but for t variables.
+		Args:
+		    input(int): The number of the t variable
+				to be shown in terms of x and y.
+		Returns:
+		    t_added(symb exp): Series of x and y variables
+				       added together.
+	"""
+	t_added = 0
+	alty = itertools.cycle([0,1]).next
+	for i in xrange(1, 2*input):
+		altyvar = alty()
+		if altyvar == 0:
+			t_added = t_added + var("y" + str(i))
+		else:
+			t_added = t_added - (var("y" +str(i)))
+	return t_added + z_adder(p)
+
+def findt(input, p, q):
+	"""Function to find individual t variables in terms of x
+	   and y.
+		Args:
+		    input(int): The number of the t variable.
+		Returns:
+		    t term(symb exp): The t variable expressed
+				       in terms of x and y.
+	"""
+	if input > q+1:
+		final = 0
+		for l in xrange(p+1, input-q+p):
+			final = final - (var("x" + str(l)))
+		return t_adder(q + 1, p) + final
+	else:
+		return t_adder(input, p)
+
+def findz(input, p, q, sig):
+	"""Function to find individual z variables in terms of x
+	   and y.
+		Args:
+		    input (int): The number of the z variable
+			   to be shown in terms of x and y.
+		Returns:
+		    z term(symb exp): The z variable expressed
+				      in terms of x and y.
+	"""
+	if input == 0:
+		return 0
+	else:
+		if p + q + 1 > input > p:
+			final = 0
+			alt = itertools.cycle([0,1]).next
+			for l in xrange(1, 2*(input-p) +1):
+				altvar = alt()
+				if altvar == 0:
+					final = final + var("y" + str(l))
+				else:
+					final = final - (var("y" + str(l)))
+				return z_adder(p) + final
+		
+		elif input == p + q + 1:
+			return findt(p+q+1+sig, p, q) - var("y" + str(2*q +2))
+
+		else:
+			return z_adder(input)
+
+
 
 def build_polynomial(r, s, degree = False):
 	"""Function to build a polynomial from r and s inputs.
@@ -69,105 +158,20 @@ def build_polynomial(r, s, degree = False):
 	#This block adds all basic x variables to the function.
 	for j in xrange(2, r+1):
 		for i in xrange(1, j):
-			term = (var("x" + str(j))-var("x" + str(i)))
-			polynomial = polynomial *term
+			polynomial = polynomial * add_x_vars(j, i)
 			poly_degree += 1
 
 	#This block adds all basic y variables to the function.
 	for j in xrange(2, s+1):
 		for i in xrange(1, j):
-			term = (var("y" + str(j)) - var("y" + str(i)))
-			polynomial = polynomial*term
+			polynomial = polynomial * add_y_vars(j, i)
 			poly_degree += 1
-
-
-
-	def z_adder(input):
-		"""Function for use in building z and t variables.
-			Args:
-			    input(int): The number of the z variable
-				        to be shown in terms of x.
-			Returns:
-			    z_added(symb exp): Series of x variables
-					       added together.
-		"""
-		z_added = 0
-		for i in xrange(1, input+1):
-			z_added = z_added + var("x"+str(i))
-		return z_added
-
-	def t_adder(input, p):
-		"""Function similar to z_adder(), but for t variables.
-			Args:
-			    input(int): The number of the t variable
-					to be shown in terms of x and y.
-			Returns:
-			    t_added(symb exp): Series of x and y variables
-					       added together.
-		"""
-		t_added = 0
-		alty = itertools.cycle([0,1]).next
-		for i in xrange(1, 2*input):
-			altyvar = alty()
-			if altyvar == 0:
-				t_added = t_added + var("y" + str(i))
-			else:
-				t_added = t_added - (var("y" +str(i)))
-		return t_added + z_adder(p)
-
-	def findt(input, p, q):
-		"""Function to find individual t variables in terms of x
-		   and y.
-			Args:
-			    input(int): The number of the t variable.
-			Returns:
-			    t term(symb exp): The t variable expressed
-					       in terms of x and y.
-		"""
-		if input > q+1:
-			final = 0
-			for l in xrange(p+1, input-q+p):
-				final = final - (var("x" + str(l)))
-			return t_adder(q + 1, p) + final
-		else:
-			return t_adder(input, p)
-
-
-	def findz(input, p):
-		"""Function to find individual z variables in terms of x
-		   and y.
-			Args:
-			    input (int): The number of the z variable
-				   to be shown in terms of x and y.
-			Returns:
-			    z term(symb exp): The z variable expressed
-					      in terms of x and y.
-		"""
-		if input == 0:
-			return 0
-		else:
-			if p + q + 1 > input > p:
-				final = 0
-				alt = itertools.cycle([0,1]).next
-				for l in xrange(1, 2*(input-p) +1):
-					altvar = alt()
-					if altvar == 0:
-						final = final + var("y" + str(l))
-					else:
-						final = final - (var("y" + str(l)))
-
-				return z_adder(p) + final
-			elif input == p + q + 1:
-				return findt(p+q+1+sig, p, q) - var("y" + str(2*q +2))
-
-			else:
-				return z_adder(input)
 
 	#This block adds terms with z variables to the polynomial in terms of x and y.
 	for j in xrange(1, p+q+1+thet):
 		for i in xrange(0, j):
 			if j!=i+1:
-				term = (findz(j, p)) - (findz(i, p))
+				term = (findz(j, p, q, sig)) - (findz(i, p, q, sig))
 				polynomial = polynomial * term
 				poly_degree += 1
 
@@ -181,7 +185,7 @@ def build_polynomial(r, s, degree = False):
 
 	#This block adds a missing z term in the case of s being even.
 	if thet == 1:
-		term = (findz(p+q+1, p) - findz(p+q, p))
+		term = (findz(p+q+1, p, q, sig) - findz(p+q, p, q, sig))
 		polynomial = polynomial*term
 		poly_degree +=1
 
@@ -191,10 +195,72 @@ def build_polynomial(r, s, degree = False):
 	else:
 		return polynomial
 
+def create_template_monomial(r, s):
+	test_monomial = 1
+	for number_of_xs in xrange(1, r+1):
+		test_monomial = test_monomial*var("x"+str(number_of_xs))**var("xpower"+str(number_of_xs))
+	for number_of_ys in xrange(1, s+1):
+		test_monomial = test_monomial*var("y"+str(number_of_ys))**var("ypower"+str(number_of_ys))
+	return test_monomial
 
+def create_power_list(r, s):
+	list_of_powers = []
+	for number_of_xs in xrange(1, r+1):
+		list_of_powers.append(var("xpower"+str(number_of_xs)))
 
+	for number_of_ys in xrange(1, s+1):
+		list_of_powers.append(var("ypower"+str(number_of_ys)))
 
-def find_monomials(polynomial, poly_degree, r, s, form = "list", sort_type = "zero"):
+	return list_of_powers
+
+def create_power_values(r, s, poly_degree):
+	list_of_power_values = []
+	for partition_set in Partitions(poly_degree, max_length=r+s).list():
+		partition_set = list(partition_set)
+		if max(partition_set)<max(r,s):
+			if len(partition_set)==r+s:
+				list_of_power_values.append(partition_set)
+			else:
+				while len(partition_set)<r+s:
+					partition_set.append(0)
+				list_of_power_values.append(partition_set)
+	return list_of_power_values
+
+def check_monomial_rs(r, s, power_set, temp_test_monomial, list_of_both_powers, polynomial_expanded):
+	if max(power_set[0:r])<r and max(power_set[r:r+s])<s:
+			temp_test_monomial = temp_test_monomial.subs({list_of_both_powers[i]:power_set[i] for i in xrange(0, r+s)})
+			temp_co = polynomial_expanded.coefficient(temp_test_monomial)
+			if temp_co not in [0]:
+				return [1, temp_test_monomial, temp_co]
+			else:
+				return [0, temp_test_monomial, temp_co]
+	else:
+		return [0, "No monomial", "No coefficient"]
+	
+
+def check_monomial_s(r, s, power_set, temp_test_monomial, list_of_both_powers, polynomial_expanded):
+	if max(power_set[r:r+s])<s:
+			temp_test_monomial = temp_test_monomial.subs({list_of_both_powers[i]:power_set[i] for i in xrange(0, r+s)})
+			temp_co = polynomial_expanded.coefficient(temp_test_monomial)
+			if temp_co not in [0]:
+				return [1, temp_test_monomial, temp_co]
+			else:
+				return [0, temp_test_monomial, temp_co]
+	else:
+		return [0, "No monomial", "No coefficient"]
+
+def check_monomial_r(r, s, power_set, temp_test_monomial, list_of_both_powers, polynomial_expanded):
+	if max(power_set[0:r])<r:
+			temp_test_monomial = temp_test_monomial.subs({list_of_both_powers[i]:power_set[i] for i in xrange(0, r+s)})
+			temp_co = polynomial_expanded.coefficient(temp_test_monomial)
+			if temp_co not in [0]:
+				return [1, temp_test_monomial, temp_co]
+			else:
+				return [0, temp_test_monomial, temp_co]
+	else:
+		return [0, "No monomial", "No coefficient"]
+		
+def find_monomials(polynomial, poly_degree, r, s, form = "list", sort_type = "zero", early_finish = False):
 	"""This function finds all monomials that, in relation to the given monomial, fit
 	   the criteria of the problem.
 
@@ -232,44 +298,19 @@ def find_monomials(polynomial, poly_degree, r, s, form = "list", sort_type = "ze
 	"""This variable will be used to create a monomial "template" with all the essential
 	   variables and variables in place of exponent values.
 	"""
-	test_monomial = 1
-	for number_of_xs in xrange(1, r+1):
-		test_monomial = test_monomial*var("x"+str(number_of_xs))**var("xpower"+str(number_of_xs))
-	for number_of_ys in xrange(1, s+1):
-		test_monomial = test_monomial*var("y"+str(number_of_ys))**var("ypower"+str(number_of_ys))
-
+	test_monomial = create_template_monomial(r, s)
 
 	"""This block creates a list of placeholders for x and y variable exponents in the order
 	   they appear.
 	"""
-	list_of_xpowers = []
-	for number_of_xs in xrange(1, r+1):
-		list_of_xpowers.append(var("xpower"+str(number_of_xs)))
-
-	list_of_ypowers = []
-	for number_of_ys in xrange(1, s+1):
-		list_of_ypowers.append(var("ypower"+str(number_of_ys)))
-
-	list_of_both_powers = list_of_xpowers + list_of_ypowers
-	del(list_of_xpowers)
-	del(list_of_ypowers)
-
+	
+	list_of_both_powers = create_power_list(r, s)
 
 	"""This block finds all possible exponent combinations for x and y variables
 	   in a list form, then finds all possible permutations of that list.
 	"""
-	list_of_power_values = []
-
-	for partition_set in Partitions(poly_degree, max_length=r+s).list():
-		partition_set = list(partition_set)
-		if max(partition_set)<max(r,s):
-			if len(partition_set)==r+s:
-				list_of_power_values.append(partition_set)
-			else:
-				while len(partition_set)<r+s:
-					partition_set.append(0)
-				list_of_power_values.append(partition_set)
-
+	
+	list_of_power_values = create_power_values(r, s, poly_degree)
 
 	"""Now, every list of exponent possibilites is subbed into the monomial template,
 	   then checked against the expanded polynomial. If it is present in the expanded
@@ -280,13 +321,31 @@ def find_monomials(polynomial, poly_degree, r, s, form = "list", sort_type = "ze
 		for power_set in multiset_permutations(power_values):
 			temp_test_monomial = test_monomial
 			power_set=list(power_set)
-			#NOTE: -1's are to fix problem when r or s = 0
-			if max(power_set[0:r])<r and max(power_set[r:r+s])<s:
-				temp_test_monomial = temp_test_monomial.subs({list_of_both_powers[i]:power_set[i] for i in xrange(0, r+s)})
-				if polynomial_expanded.coefficient(temp_test_monomial) not in [0]:
-					workable_monomials.append((polynomial_expanded.coefficient(temp_test_monomial)*temp_test_monomial, int(polynomial_expanded.coefficient(temp_test_monomial))))
+			if r > 0 and s > 0:
+				testing_list = check_monomial_rs(r, s, power_set, temp_test_monomial, list_of_both_powers, polynomial_expanded)
+			elif r > 0 and s == 0:
+				testing_list = check_monomial_r(r, s, power_set, temp_test_monomial, list_of_both_powers, polynomial_expanded)
+			elif r == 0 and s > 0:
+				testing_list = check_monomial_s(r, s, power_set, temp_test_monomial, list_of_both_powers, polynomial_expanded)
+			else:
+				raise ValueError("Invalid r and s inputs. r and s may not be bellow zero and may not both be zero")
+			
+			if testing_list[0] == 1:
+					workable_monomials.append((testing_list[2]*testing_list[1], int(testing_list[2])))
+					#The following block tests to see if the function can finish early
+					if early_finish == True:
+						fin = 1
+						for fac in list(factor(int(testing_list[2]))):
+							if fac[0] not in xrange(-3, 4):
+								fin = 0
+						if fin == 1:
+							if form == "list":
+								for i in xrange(0, len(workable_monomials)):
+                        						workable_monomials[i] = workable_monomials[i][0]
+							return workable_monomials
 
-	#Changes output depending on prefernces set at the outset.
+
+	#Changes output depending on preferences set at the outset.
 	if len(workable_monomials) > 0:
 		if sort_type == "zero":
 			workable_monomials = sorted(workable_monomials, key = lambda tup: abs(tup[1]))
@@ -300,7 +359,7 @@ def find_monomials(polynomial, poly_degree, r, s, form = "list", sort_type = "ze
 	return workable_monomials
 
 
-def sift(r, s, form = "list", sort_type = "zero"):
+def sift(r, s, form = "list", sort_type = "zero", early_finish = False):
 	"""This function builds a polynomial according to r and s values
 	   then finds all monomials present in the expanded form of the
 	   polynomial that fit the criteria of the problem.
@@ -323,7 +382,7 @@ def sift(r, s, form = "list", sort_type = "zero"):
 	"""
 
 	poly_input = build_polynomial(r, s, degree = True)
-	return find_monomials(poly_input[0], poly_input[1], r, s, form = form, sort_type = sort_type)
+	return find_monomials(poly_input[0], poly_input[1], r, s, form = form, sort_type = sort_type, early_finish = early_finish)
 
 
 
