@@ -1,6 +1,6 @@
 """
 Kat Cannon-MacMartin
-partsift v1.6.0
+partsift v1.6.2
 A tool for building and polynomials and finding monomials.
 for use in the paper:
 'Sequences in Dihedral Groups with Distinct Partial Products'
@@ -93,8 +93,8 @@ def findz(input, p, q, sig):
 					final = final + var("y" + str(l))
 				else:
 					final = final - (var("y" + str(l)))
-				return z_adder(p) + final
-		
+			return z_adder(p) + final
+
 		elif input == p + q + 1:
 			return findt(p+q+1+sig, p, q) - var("y" + str(2*q +2))
 
@@ -188,7 +188,6 @@ def build_polynomial(r, s, degree = False):
 		term = (findz(p+q+1, p, q, sig) - findz(p+q, p, q, sig))
 		polynomial = polynomial*term
 		poly_degree +=1
-
 	if degree == True:
 		result_list = [polynomial, poly_degree]
 		return result_list
@@ -260,7 +259,7 @@ def check_monomial_r(r, s, power_set, temp_test_monomial, list_of_both_powers, p
 	else:
 		return [0, "No monomial", "No coefficient"]
 		
-def find_monomials(polynomial, poly_degree, r, s, form = "list", sort_type = "zero", early_finish = False):
+def find_monomials(polynomial, poly_degree, r, s, form = "list", sort_type = "zero", early_finish = True, rolling_output = True):
 	"""This function finds all monomials that, in relation to the given monomial, fit
 	   the criteria of the problem.
 
@@ -309,7 +308,7 @@ def find_monomials(polynomial, poly_degree, r, s, form = "list", sort_type = "ze
 	"""This block finds all possible exponent combinations for x and y variables
 	   in a list form, then finds all possible permutations of that list.
 	"""
-	
+
 	list_of_power_values = create_power_values(r, s, poly_degree)
 
 	"""Now, every list of exponent possibilites is subbed into the monomial template,
@@ -329,14 +328,20 @@ def find_monomials(polynomial, poly_degree, r, s, form = "list", sort_type = "ze
 				testing_list = check_monomial_s(r, s, power_set, temp_test_monomial, list_of_both_powers, polynomial_expanded)
 			else:
 				raise ValueError("Invalid r and s inputs. r and s may not be bellow zero and may not both be zero")
-			
+
 			if testing_list[0] == 1:
 					workable_monomials.append((testing_list[2]*testing_list[1], int(testing_list[2])))
+					if rolling_output == True:
+						print testing_list[2]*testing_list[1]
 					#The following block tests to see if the function can finish early
 					if early_finish == True:
 						fin = 1
 						for fac in list(factor(int(testing_list[2]))):
-							if fac[0] not in xrange(-3, 4):
+							if r + s > 9:
+								prime_range = xrange(-5, 6)
+							else:
+								prime_range = xrange(-3, 4)
+							if fac[0] not in prime_range:
 								fin = 0
 						if fin == 1:
 							if form == "list":
@@ -359,7 +364,7 @@ def find_monomials(polynomial, poly_degree, r, s, form = "list", sort_type = "ze
 	return workable_monomials
 
 
-def sift(r, s, form = "list", sort_type = "zero", early_finish = False):
+def sift(r, s, form = "list", sort_type = "zero", early_finish = True, rolling_output = True):
 	"""This function builds a polynomial according to r and s values
 	   then finds all monomials present in the expanded form of the
 	   polynomial that fit the criteria of the problem.
@@ -382,7 +387,7 @@ def sift(r, s, form = "list", sort_type = "zero", early_finish = False):
 	"""
 
 	poly_input = build_polynomial(r, s, degree = True)
-	return find_monomials(poly_input[0], poly_input[1], r, s, form = form, sort_type = sort_type, early_finish = early_finish)
+	return find_monomials(poly_input[0], poly_input[1], r, s, form = form, sort_type = sort_type, early_finish = early_finish, rolling_output=rolling_output)
 
 
 
