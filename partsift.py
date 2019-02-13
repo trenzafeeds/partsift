@@ -13,6 +13,7 @@ from sage.calculus.var import var
 from sage.combinat.partition import Partitions
 from sage.calculus.functional import expand
 
+import sys
 import itertools
 from sympy.utilities.iterables import multiset_permutations
 
@@ -388,6 +389,4 @@ def sift(r, s, form = "list", sort_type = "zero", early_finish = True, rolling_o
 
 	poly_input = build_polynomial(r, s, degree = True)
 	return find_monomials(poly_input[0], poly_input[1], r, s, form = form, sort_type = sort_type, early_finish = early_finish, rolling_output=rolling_output)
-
-
 
