@@ -260,7 +260,7 @@ def check_monomial_r(r, s, power_set, temp_test_monomial, list_of_both_powers, p
 	else:
 		return [0, "No monomial", "No coefficient"]
 		
-def find_monomials(polynomial, poly_degree, r, s, form = "list", sort_type = "zero", early_finish = True, rolling_output = True):
+def find_monomials(polynomial, poly_degree, r, s, form = "list", sort_type = "zero", early_finish = True, rolling_output = True, out_file = None):
 	"""This function finds all monomials that, in relation to the given monomial, fit
 	   the criteria of the problem.
 
@@ -285,6 +285,14 @@ def find_monomials(polynomial, poly_degree, r, s, form = "list", sort_type = "ze
 				     coefficients depending on the value of sort_type. If there are
 				     no working monomials, the function returns an empty list.
 	"""
+
+	if out_file != None:
+		try:
+			file = open(out_file, "w+")
+		except:
+			out_file = None
+			print "File failed to open, printing to stdout..."
+			print
 	#Double check that variables are declared to prevent errors when forming monomials.
 	for num in xrange(1, r+1):
 		var("x"+str(num))
@@ -333,7 +341,11 @@ def find_monomials(polynomial, poly_degree, r, s, form = "list", sort_type = "ze
 			if testing_list[0] == 1:
 					workable_monomials.append((testing_list[2]*testing_list[1], int(testing_list[2])))
 					if rolling_output == True:
-						print testing_list[2]*testing_list[1]
+						if out_file != None:
+							file.write(str(testing_list[2]*testing_list[1]))
+							file.write("\n")
+						else:
+							print testing_list[2]*testing_list[1]
 					#The following block tests to see if the function can finish early
 					if early_finish == True:
 						fin = 1
@@ -365,7 +377,7 @@ def find_monomials(polynomial, poly_degree, r, s, form = "list", sort_type = "ze
 	return workable_monomials
 
 
-def sift(r, s, form = "list", sort_type = "zero", early_finish = True, rolling_output = True):
+def sift(r, s, form = "list", sort_type = "zero", early_finish = True, rolling_output = True, out_file = None):
 	"""This function builds a polynomial according to r and s values
 	   then finds all monomials present in the expanded form of the
 	   polynomial that fit the criteria of the problem.
@@ -388,5 +400,5 @@ def sift(r, s, form = "list", sort_type = "zero", early_finish = True, rolling_o
 	"""
 
 	poly_input = build_polynomial(r, s, degree = True)
-	return find_monomials(poly_input[0], poly_input[1], r, s, form = form, sort_type = sort_type, early_finish = early_finish, rolling_output=rolling_output)
+	return find_monomials(poly_input[0], poly_input[1], r, s, form = form, sort_type = sort_type, early_finish = early_finish, rolling_output=rolling_output, out_file=out_file)
 
