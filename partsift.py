@@ -16,6 +16,7 @@ from sage.calculus.functional import expand
 import sys
 import itertools
 from sympy.utilities.iterables import multiset_permutations
+from multivar import *
 
 def add_x_vars(j, i):
 	return (var("x" + str(j)) - var("x" + str(i)))
