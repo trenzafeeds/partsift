@@ -24,7 +24,12 @@ def array_to_sage(co_array):
         sage_poly = sage_poly * sage_factor
     return sage_poly
 
-def sage_to_array(sagepoly):
+def term_fmult(term1, term2):
+    term1 = [term1, term1.variables()]
+    term2 = [term2, term2.variables()]
+
+def sage_fexpand(sagepoly):
     sage_vars = list(sagepoly.variables())
     sage_fac_list = sagepoly[0].factor_list()
+    
     
