@@ -1,12 +1,15 @@
 """
 Kat Cannon-MacMartin
-partsift v1.6.2
+partsift v2.0
 A tool for building and polynomials and finding monomials.
 for use in the paper:
 'Sequences in Dihedral Groups with Distinct Partial Products'
 February 20, 2018
 Marlboro College
 """
+
+VERSION = 2.0
+v = version = VERSION
 
 from sage.arith.misc import factor
 from sage.calculus.var import var
