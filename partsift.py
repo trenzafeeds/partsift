@@ -1,6 +1,6 @@
 """
 Kat Cannon-MacMartin
-partsift v1.6.2
+partsift v2.0
 A tool for building and polynomials and finding monomials.
 for use in the paper:
 'Sequences in Dihedral Groups with Distinct Partial Products'
@@ -8,10 +8,16 @@ February 20, 2018
 Marlboro College
 """
 
+VERSION = 2.0
+v = version = VERSION
+
 from sage.arith.misc import factor
 from sage.calculus.var import var
 from sage.combinat.partition import Partitions
 from sage.calculus.functional import expand
+from sage.symbolic.expression_conversions import polynomial as type_change
+from sage.rings.polynomial.polynomial_ring_constructor import PolynomialRing
+from sage.rings.rational_field import RationalField
 
 import sys
 import itertools
@@ -226,9 +232,10 @@ def create_power_values(r, s, poly_degree):
 				list_of_power_values.append(partition_set)
 	return list_of_power_values
 
-def check_monomial_rs(r, s, power_set, temp_test_monomial, list_of_both_powers, polynomial_expanded):
+def check_monomial_rs(r, s, power_set, temp_test_monomial, list_of_both_powers, polynomial_expanded, R):
 	if max(power_set[0:r])<r and max(power_set[r:r+s])<s:
 			temp_test_monomial = temp_test_monomial.subs({list_of_both_powers[i]:power_set[i] for i in xrange(0, r+s)})
+                        temp_test_monomial = type_change(temp_test_monomial, ring=R)
 			temp_co = polynomial_expanded.coefficient(temp_test_monomial)
 			if temp_co not in [0]:
 				return [1, temp_test_monomial, temp_co]
@@ -238,9 +245,10 @@ def check_monomial_rs(r, s, power_set, temp_test_monomial, list_of_both_powers, 
 		return [0, "No monomial", "No coefficient"]
 	
 
-def check_monomial_s(r, s, power_set, temp_test_monomial, list_of_both_powers, polynomial_expanded):
+def check_monomial_s(r, s, power_set, temp_test_monomial, list_of_both_powers, polynomial_expanded, R):
 	if max(power_set[r:r+s])<s:
 			temp_test_monomial = temp_test_monomial.subs({list_of_both_powers[i]:power_set[i] for i in xrange(0, r+s)})
+                        temp_test_monomial = type_change(temp_test_monomial, ring=R)
 			temp_co = polynomial_expanded.coefficient(temp_test_monomial)
 			if temp_co not in [0]:
 				return [1, temp_test_monomial, temp_co]
@@ -249,9 +257,10 @@ def check_monomial_s(r, s, power_set, temp_test_monomial, list_of_both_powers, p
 	else:
 		return [0, "No monomial", "No coefficient"]
 
-def check_monomial_r(r, s, power_set, temp_test_monomial, list_of_both_powers, polynomial_expanded):
+def check_monomial_r(r, s, power_set, temp_test_monomial, list_of_both_powers, polynomial_expanded, R):
 	if max(power_set[0:r])<r:
 			temp_test_monomial = temp_test_monomial.subs({list_of_both_powers[i]:power_set[i] for i in xrange(0, r+s)})
+                        temp_test_monomial = type_change(temp_test_monomial, ring=R)
 			temp_co = polynomial_expanded.coefficient(temp_test_monomial)
 			if temp_co not in [0]:
 				return [1, temp_test_monomial, temp_co]
@@ -259,7 +268,17 @@ def check_monomial_r(r, s, power_set, temp_test_monomial, list_of_both_powers, p
 				return [0, temp_test_monomial, temp_co]
 	else:
 		return [0, "No monomial", "No coefficient"]
-		
+
+def ring_lists(r, s):
+        slist = ''
+        for i in xrange(1, r + 1):
+                slist = slist + 'x' + str(i) + ', '
+        for i in xrange(1, s + 1):
+                slist = slist + 'y' + str(i) + ', '
+        slist = slist[0:-2]
+        vlist = var(slist)
+        return [slist, vlist]
+	
 def find_monomials(polynomial, poly_degree, r, s, form = "list", sort_type = "zero", early_finish = True, rolling_output = True, out_file = None):
 	"""This function finds all monomials that, in relation to the given monomial, fit
 	   the criteria of the problem.
@@ -299,8 +318,13 @@ def find_monomials(polynomial, poly_degree, r, s, form = "list", sort_type = "ze
 	for num in xrange(1, s+1):
 		var("y"+str(num))
 
+        # Declare ring as R
+        ringlists = ring_lists(r, s)
+        R, ringlists[1] = PolynomialRing(RationalField(), r+s, ringlists[0]).objgens()
+
 	#Monomials must be checked against the expanded monomial
-	polynomial_expanded = polynomial.expand()
+	# polynomial_expanded = polynomial.expand() #--- This was the old way
+        polynomial_expanded = type_change(polynomial, ring=R)
 
 
 	"""This variable will be used to create a monomial "template" with all the essential
@@ -330,11 +354,11 @@ def find_monomials(polynomial, poly_degree, r, s, form = "list", sort_type = "ze
 			temp_test_monomial = test_monomial
 			power_set=list(power_set)
 			if r > 0 and s > 0:
-				testing_list = check_monomial_rs(r, s, power_set, temp_test_monomial, list_of_both_powers, polynomial_expanded)
+				testing_list = check_monomial_rs(r, s, power_set, temp_test_monomial, list_of_both_powers, polynomial_expanded, R)
 			elif r > 0 and s == 0:
-				testing_list = check_monomial_r(r, s, power_set, temp_test_monomial, list_of_both_powers, polynomial_expanded)
+				testing_list = check_monomial_r(r, s, power_set, temp_test_monomial, list_of_both_powers, polynomial_expanded, R)
 			elif r == 0 and s > 0:
-				testing_list = check_monomial_s(r, s, power_set, temp_test_monomial, list_of_both_powers, polynomial_expanded)
+				testing_list = check_monomial_s(r, s, power_set, temp_test_monomial, list_of_both_powers, polynomial_expanded, R)
 			else:
 				raise ValueError("Invalid r and s inputs. r and s may not be bellow zero and may not both be zero")
 
