@@ -1,6 +1,6 @@
 """
 Kat Cannon-MacMartin
-partsift v2.0
+partsift v2.0T
 A tool for building and polynomials and finding monomials.
 for use in the paper:
 'Sequences in Dihedral Groups with Distinct Partial Products'
@@ -8,7 +8,7 @@ February 20, 2018
 Marlboro College
 """
 
-VERSION = 2.0
+VERSION = '2.0T' #T stands for "Threaded"
 v = version = VERSION
 
 from sage.arith.misc import factor
@@ -22,6 +22,8 @@ from sage.rings.rational_field import RationalField
 import sys
 import itertools
 from sympy.utilities.iterables import multiset_permutations
+
+from multiprocessing import Process, Queue
 
 def add_x_vars(j, i):
 	return (var("x" + str(j)) - var("x" + str(i)))
@@ -278,6 +280,9 @@ def ring_lists(r, s):
         slist = slist[0:-2]
         vlist = var(slist)
         return [slist, vlist]
+
+def texpand(term1, term2):
+        pass #Threading goes here
 	
 def find_monomials(polynomial, poly_degree, r, s, form = "list", sort_type = "zero", early_finish = True, rolling_output = True, out_file = None):
 	"""This function finds all monomials that, in relation to the given monomial, fit
@@ -401,7 +406,7 @@ def find_monomials(polynomial, poly_degree, r, s, form = "list", sort_type = "ze
 	return workable_monomials
 
 
-def sift(r, s, form = "list", sort_type = "zero", early_finish = True, rolling_output = True, out_file = None):
+def sift(r, s, form = "list", sort_type = "zero", early_finish = True, rolling_output = True, out_file = None, threading = True):
 	"""This function builds a polynomial according to r and s values
 	   then finds all monomials present in the expanded form of the
 	   polynomial that fit the criteria of the problem.
@@ -424,5 +429,5 @@ def sift(r, s, form = "list", sort_type = "zero", early_finish = True, rolling_o
 	"""
 
 	poly_input = build_polynomial(r, s, degree = True)
-	return find_monomials(poly_input[0], poly_input[1], r, s, form = form, sort_type = sort_type, early_finish = early_finish, rolling_output=rolling_output, out_file=out_file)
+	return find_monomials(poly_input[0], poly_input[1], r, s, form = form, sort_type = sort_type, early_finish = early_finish, rolling_output=rolling_output, out_file=out_file, threading=threading)
 
