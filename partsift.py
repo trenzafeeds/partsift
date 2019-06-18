@@ -23,7 +23,8 @@ import sys
 import itertools
 from sympy.utilities.iterables import multiset_permutations
 
-from multiprocessing import Process, Queue
+from multiprocessing import Process, Queue, Pool
+from threads import * # Local threading functions
 
 def add_x_vars(j, i):
 	return (var("x" + str(j)) - var("x" + str(i)))
