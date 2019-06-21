@@ -133,7 +133,7 @@ def build_polynomial(r, s, degree = False):
 	    an integer.
 	"""
 
-	polynomial = 1
+	polynomial = []
 	"""Base for the end polynomial. Each time a new term
 	is created, it wil be multiplied into this variable.
 	"""
@@ -168,13 +168,13 @@ def build_polynomial(r, s, degree = False):
 	#This block adds all basic x variables to the function.
 	for j in xrange(2, r+1):
 		for i in xrange(1, j):
-			polynomial = polynomial * add_x_vars(j, i)
+			polynomial.append(add_x_vars(j, i))
 			poly_degree += 1
 
 	#This block adds all basic y variables to the function.
 	for j in xrange(2, s+1):
 		for i in xrange(1, j):
-			polynomial = polynomial * add_y_vars(j, i)
+			polynomial.append(add_y_vars(j, i))
 			poly_degree += 1
 
 	#This block adds terms with z variables to the polynomial in terms of x and y.
@@ -182,7 +182,7 @@ def build_polynomial(r, s, degree = False):
 		for i in xrange(0, j):
 			if j!=i+1:
 				term = (findz(j, p, q, sig)) - (findz(i, p, q, sig))
-				polynomial = polynomial * term
+				polynomial.append(term)
 				poly_degree += 1
 
 	#This block adds terms with t variables to the polynomial in terms of x and y.
@@ -190,13 +190,13 @@ def build_polynomial(r, s, degree = False):
 		for i in xrange(1, j):
 			if j != i+1:
 				term = (findt(j, p, q)) - (findt(i, p, q))
-				polynomial = polynomial * term
+				polynomial.append(term)
 				poly_degree +=1
 
 	#This block adds a missing z term in the case of s being even.
 	if thet == 1:
 		term = (findz(p+q+1, p, q, sig) - findz(p+q, p, q, sig))
-		polynomial = polynomial*term
+		polynomial.append(term)
 		poly_degree +=1
 	if degree == True:
 		result_list = [polynomial, poly_degree]
@@ -285,7 +285,7 @@ def ring_lists(r, s):
 def texpand(term1, term2):
         pass #Threading goes here
 	
-def find_monomials(polynomial, poly_degree, r, s, form = "list", sort_type = "zero", early_finish = True, rolling_output = True, out_file = None):
+def find_monomials(polynomial, poly_degree, r, s, form = "list", sort_type = "zero", early_finish = True, rolling_output = True, out_file = None, threading = False):
 	"""This function finds all monomials that, in relation to the given monomial, fit
 	   the criteria of the problem.
 
@@ -330,7 +330,11 @@ def find_monomials(polynomial, poly_degree, r, s, form = "list", sort_type = "ze
 
 	#Monomials must be checked against the expanded monomial
 	# polynomial_expanded = polynomial.expand() #--- This was the old way
-        polynomial_expanded = type_change(polynomial, ring=R)
+        polynomial_expanded = 1
+        for term in xrange(0, len(polynomial)):
+                polynomial_expanded = polynomial_expanded * polynomial[term]
+        
+        polynomial_expanded = type_change(polynomial_expanded, ring=R)
 
 
 	"""This variable will be used to create a monomial "template" with all the essential
