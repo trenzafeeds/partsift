@@ -10,6 +10,7 @@ Marlboro College
 
 VERSION = '2.0T' #T stands for "Threaded"
 v = version = VERSION
+typestring = 'sage.rings.polynomial.multi_polynomial_libsingular.MPolynomial_libsingular'
 
 from sage.arith.misc import factor
 from sage.calculus.var import var
@@ -281,6 +282,26 @@ def ring_lists(r, s):
         slist = slist[0:-2]
         vlist = var(slist)
         return [slist, vlist]
+
+def check_powers(maxpowers, mon):
+        powers = mon.degrees()
+        for pwrcnt in xrange(0, len(powers)):
+                if powers[pwrcnt] >= maxpowers[pwrcnt]:
+                        return False
+        return True
+
+def reduce(maxpowers, term):
+        terminfo = [term.monomials(), term.coefficients()]
+        for moncnt in xrange(0, len(terminfo[0])):
+                if not check_powers(maxpowers, terminfo[0][moncnt]):
+                        term = term - (terminfo[1][moncnt] * terminfo[0][moncnt])
+        if term == 0:
+                return 1
+        else:
+                return term
+
+def multiply(term1, term2, maxpowers):
+        return reduce(maxpowers, term1) * reduce(maxpowers, term2)
 
 def texpand(term1, term2):
         pass #Threading goes here
