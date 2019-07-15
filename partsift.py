@@ -8,7 +8,7 @@ February 20, 2018
 Marlboro College
 """
 
-VERSION = '2.0T' #T stands for "Threaded"
+VERSION = '2.5T' #T stands for "Threaded"
 v = version = VERSION
 
 from sage.arith.misc import factor
@@ -453,7 +453,7 @@ def find_monomials(polynomial, poly_degree, r, s, form = "list", sort_type = "ze
 	return workable_monomials
 
 
-def sift(r, s, form = "list", sort_type = "zero", early_finish = True, rolling_output = True, out_file = None, threading = True):
+def sift(r, s, form = "list", sort_type = "zero", early_finish = True, rolling_output = True, out_file = None, threading = False):
 	"""This function builds a polynomial according to r and s values
 	   then finds all monomials present in the expanded form of the
 	   polynomial that fit the criteria of the problem.
