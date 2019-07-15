@@ -10,7 +10,6 @@ Marlboro College
 
 VERSION = '2.0T' #T stands for "Threaded"
 v = version = VERSION
-typestring = 'sage.rings.polynomial.multi_polynomial_libsingular.MPolynomial_libsingular'
 
 from sage.arith.misc import factor
 from sage.calculus.var import var
@@ -301,7 +300,17 @@ def reduce(maxpowers, term):
                 return term
 
 def multiply(term1, term2, maxpowers):
-        return reduce(maxpowers, term1) * reduce(maxpowers, term2)
+        if type(term1) != (int):
+                term1 = reduce(maxpowers, term1)
+        else:
+                #print(type(term1))
+                pass
+        if type(term2) != (int):
+                term2 = reduce(maxpowers, term2)
+        else:
+                #print(type(term2))
+                pass
+        return term1 * term2
 
 def texpand(term1, term2):
         pass #Threading goes here
@@ -352,10 +361,22 @@ def find_monomials(polynomial, poly_degree, r, s, form = "list", sort_type = "ze
 	#Monomials must be checked against the expanded monomial
 	# polynomial_expanded = polynomial.expand() #--- This was the old way
         polynomial_expanded = 1
-        for term in xrange(0, len(polynomial)):
-                polynomial_expanded = polynomial_expanded * polynomial[term]
+        if threading:
+                maxpowers = []
+                for rcnt in xrange(0, r):
+                        maxpowers.append(r)
+                for scnt in xrange(0, s):
+                        maxpowers.append(s)
         
-        polynomial_expanded = type_change(polynomial_expanded, ring=R)
+        for termcnt in xrange(0, len(polynomial)):
+                if threading:
+                        polynomial[termcnt] = type_change(polynomial[termcnt], ring=R)
+                        polynomial_expanded = multiply(polynomial_expanded, polynomial[termcnt], maxpowers)
+                else:        
+                        polynomial_expanded = polynomial_expanded * polynomial[termcnt]
+
+        if not threading:
+                polynomial_expanded = type_change(polynomial_expanded, ring=R)
 
 
 	"""This variable will be used to create a monomial "template" with all the essential
