@@ -222,6 +222,17 @@ def create_power_list(r, s):
 
 	return list_of_powers
 
+def test_power_set(target, in_set):
+        if not in_set:
+                return False
+        
+        for pcnt in xrange(0, len(target)):
+                if (target[pcnt] > in_set[pcnt]):
+                        return False
+                else:
+                        pass
+        return True
+
 def create_power_values(r, s, poly_degree):
 	list_of_power_values = []
 	for partition_set in Partitions(poly_degree, max_length=r+s).list():
@@ -283,6 +294,7 @@ def ring_lists(r, s):
         return [slist, vlist]
 
 def check_powers(maxpowers, mon):
+        
         powers = mon.degrees()
         for pwrcnt in xrange(0, len(powers)):
                 if powers[pwrcnt] >= maxpowers[pwrcnt]:
@@ -315,7 +327,7 @@ def multiply(term1, term2, maxpowers):
 def texpand(term1, term2):
         pass #Threading goes here
 	
-def find_monomials(polynomial, poly_degree, r, s, form = "list", sort_type = "zero", early_finish = True, rolling_output = True, out_file = None, threading = False):
+def find_monomials(polynomial, poly_degree, r, s, form = "list", sort_type = "zero", early_finish = True, rolling_output = True, out_file = None, threading = False, maxexponents = False):
 	"""This function finds all monomials that, in relation to the given monomial, fit
 	   the criteria of the problem.
 
@@ -405,38 +417,39 @@ def find_monomials(polynomial, poly_degree, r, s, form = "list", sort_type = "ze
 		for power_set in multiset_permutations(power_values):
 			temp_test_monomial = test_monomial
 			power_set=list(power_set)
-			if r > 0 and s > 0:
-				testing_list = check_monomial_rs(r, s, power_set, temp_test_monomial, list_of_both_powers, polynomial_expanded, R)
-			elif r > 0 and s == 0:
-				testing_list = check_monomial_r(r, s, power_set, temp_test_monomial, list_of_both_powers, polynomial_expanded, R)
-			elif r == 0 and s > 0:
+                        if ((not maxexponents) or (maxexponents and test_power_set(power_set, maxexponents))):
+			    if r > 0 and s > 0:
+                                    testing_list = check_monomial_rs(r, s, power_set, temp_test_monomial, list_of_both_powers, polynomial_expanded, R)
+			    elif r > 0 and s == 0:
+                                    testing_list = check_monomial_r(r, s, power_set, temp_test_monomial, list_of_both_powers, polynomial_expanded, R)
+			    elif r == 0 and s > 0:
 				testing_list = check_monomial_s(r, s, power_set, temp_test_monomial, list_of_both_powers, polynomial_expanded, R)
-			else:
+			    else:
 				raise ValueError("Invalid r and s inputs. r and s may not be bellow zero and may not both be zero")
 
-			if testing_list[0] == 1:
-					workable_monomials.append((testing_list[2]*testing_list[1], int(testing_list[2])))
-					if rolling_output == True:
-						if out_file != None:
-							file.write(str(testing_list[2]*testing_list[1]))
-							file.write("\n")
-						else:
-							print testing_list[2]*testing_list[1]
+                            if testing_list[0] == 1:
+				workable_monomials.append((testing_list[2]*testing_list[1], int(testing_list[2])))
+				if rolling_output == True:
+				        if out_file != None:
+						file.write(str(testing_list[2]*testing_list[1]))
+						file.write("\n")
+					else:
+						print testing_list[2]*testing_list[1]
 					#The following block tests to see if the function can finish early
-					if early_finish == True:
-						fin = 1
-						for fac in list(factor(int(testing_list[2]))):
-							if r + s > 9:
-								prime_range = xrange(-5, 6)
-							else:
-								prime_range = xrange(-3, 4)
-							if fac[0] not in prime_range:
-								fin = 0
-						if fin == 1:
-							if form == "list":
-								for i in xrange(0, len(workable_monomials)):
-                        						workable_monomials[i] = workable_monomials[i][0]
-							return workable_monomials
+				if early_finish == True:
+					fin = 1
+					for fac in list(factor(int(testing_list[2]))):
+						if r + s > 9:
+							prime_range = xrange(-5, 6)
+						else:
+							prime_range = xrange(-3, 4)
+						if fac[0] not in prime_range:
+							fin = 0
+					if fin == 1:
+						if form == "list":
+							for i in xrange(0, len(workable_monomials)):
+                        					workable_monomials[i] = workable_monomials[i][0]
+						return workable_monomials
 
 
 	#Changes output depending on preferences set at the outset.
